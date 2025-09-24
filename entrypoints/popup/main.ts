@@ -1,24 +1,45 @@
 import './style.css';
-import typescriptLogo from '@/assets/typescript.svg';
-import wxtLogo from '/wxt.svg';
-import { setupCounter } from '@/components/counter';
 
+// Simple popup interface
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div>
-    <a href="https://wxt.dev" target="_blank">
-      <img src="${wxtLogo}" class="logo" alt="WXT logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>WXT + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
+    <h2>🚀 Your Extension</h2>
+    <p>This is your popup window!</p>
+
+    <div class="buttons">
+      <button id="action-btn">Do Something</button>
+      <button id="options-btn">Options</button>
     </div>
-    <p class="read-the-docs">
-      Click on the WXT and TypeScript logos to learn more
-    </p>
+
+    <div class="info">
+      <p><strong>Current Tab:</strong> <span id="current-url">Loading...</span></p>
+    </div>
   </div>
 `;
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!);
+// Get current tab info
+browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
+  const currentTab = tabs[0];
+  const urlElement = document.getElementById('current-url');
+  if (urlElement && currentTab.url) {
+    urlElement.textContent = new URL(currentTab.url).hostname;
+  }
+});
+
+// Add button functionality
+document.getElementById('action-btn')?.addEventListener('click', () => {
+  // Example: Send message to content script
+  browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
+    if (tabs[0].id) {
+      console.log('Action button clicked!');
+      // You can send messages to content scripts here
+      // browser.tabs.sendMessage(tabs[0].id, { action: 'doSomething' });
+    }
+  });
+});
+
+document.getElementById('options-btn')?.addEventListener('click', () => {
+  // Example: Open options page
+  console.log('Opening options...');
+  // browser.runtime.openOptionsPage();
+});
