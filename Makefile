@@ -64,4 +64,3 @@ clean:
 	@echo "🧹 Cleaning build files..."
 	rm -rf .output
 	rm -rf .wxt
-	rm -rf node_modules/.cache

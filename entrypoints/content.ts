@@ -1,19 +1,86 @@
 export default defineContentScript({
-  matches: ['*://*.example.com/*'],
+  matches: ['*://substack.com/*', '*://*.substack.com/*'],
   main() {
-    // This runs on matching websites
-    console.log('Extension content script loaded on:', window.location.hostname);
+    let hideUserBadgesEnabled = true;
+    let hideTrendingEnabled = true;
 
-    // Example: Change page background (remove this in your extension)
-    document.body.style.backgroundColor = '#f9f9f9';
+    function hideTrendingBlock() {
+      if (!hideTrendingEnabled) return;
 
-    // Example: Add a message to the page
-    const message = document.createElement('div');
-    message.textContent = '🎉 Your extension is working!';
-    message.style.cssText = 'position:fixed;top:10px;right:10px;background:#4CAF50;color:white;padding:10px;border-radius:5px;z-index:9999;';
-    document.body.appendChild(message);
+      // Find "Trending" headers using stable classes and text content
+      const potentialHeaders = document.querySelectorAll('div.pencraft.pc-reset');
+      potentialHeaders.forEach(header => {
+        if (header instanceof HTMLDivElement && header.textContent?.trim() === 'Trending') {
+          // Find the closest parent container with stable classes
+          const container = header.closest('div.pencraft.pc-display-flex.pc-flexDirection-column') as HTMLElement | null;
+          if (container) {
+            container.style.display = 'none';
+          }
+        }
+      });
 
-    // Remove the message after 3 seconds
-    setTimeout(() => message.remove(), 3000);
+      // Also hide individual links as backup (using UTM pattern)
+      const links = document.querySelectorAll<HTMLAnchorElement>('a[href*="utm_source=trending-topics"]');
+      links.forEach(link => {
+        link.style.display = 'none';
+      });
+    }
+
+    function hideUserBadges() {
+      if (!hideUserBadgesEnabled) return;
+
+      const userBadges = document.querySelectorAll('[data-testid="user-badge"]');
+      userBadges.forEach(badge => {
+        if (badge instanceof HTMLElement) {
+          badge.style.display = 'none';
+        }
+      });
+    }
+
+    function toggleUserBadges(enabled: boolean) {
+      hideUserBadgesEnabled = enabled;
+      const userBadges = document.querySelectorAll('[data-testid="user-badge"]');
+      userBadges.forEach(badge => {
+        if (badge instanceof HTMLElement) {
+          badge.style.display = enabled ? 'none' : '';
+        }
+      });
+    }
+
+    function toggleTrendingBlock(enabled: boolean) {
+      hideTrendingEnabled = enabled;
+
+      // Handle trending headers
+      const potentialHeaders = document.querySelectorAll('div.pencraft.pc-reset');
+      potentialHeaders.forEach(header => {
+        if (header instanceof HTMLDivElement && header.textContent?.trim() === 'Trending') {
+          const container = header.closest('div.pencraft.pc-display-flex.pc-flexDirection-column') as HTMLElement | null;
+          if (container) {
+            container.style.display = enabled ? 'none' : '';
+          }
+        }
+      });
+
+      // Handle trending links
+      const links = document.querySelectorAll<HTMLAnchorElement>('a[href*="utm_source=trending-topics"]');
+      links.forEach(link => {
+        link.style.display = enabled ? 'none' : '';
+      });
+    }
+
+    function runAllHiders() {
+      hideTrendingBlock();
+      hideUserBadges();
+    }
+
+    runAllHiders(); // Run initially
+
+    // Watch for dynamic content
+    const observer = new MutationObserver(runAllHiders);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Expose toggle functions for debugging/manual control
+    (window as any).toggleUserBadges = toggleUserBadges;
+    (window as any).toggleTrendingBlock = toggleTrendingBlock;
   },
 });
