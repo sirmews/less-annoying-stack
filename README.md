@@ -1,22 +1,22 @@
-# Browser Extension Starter Template
+# Less Annoying Substack
 
-A simple, modern browser extension template that works with Chrome, Firefox, and other browsers.
+A browser extension that removes distracting elements from Substack to create a cleaner reading experience.
 
-## What's Included
+## Features
 
-- ✅ **Modern Setup** - TypeScript, hot reload during development
+- ✅ **Trending Block Removal** - Hides "Trending" sections and recommendations
+- ✅ **User Badge Hiding** - Removes subscriber badges and user indicators
+- ✅ **Up Next Block Removal** - Hides "Up Next" reading queue sections
+- ✅ **Toggleable Controls** - Each feature can be enabled/disabled independently
+- ✅ **Dynamic Content Support** - Works with asynchronously loaded content
 - ✅ **Cross-Browser** - Works on Chrome, Firefox, Edge, and more
-- ✅ **Three Main Parts**:
-  - **Popup** - The window that opens when you click the extension icon
-  - **Content Script** - Runs on web pages to modify them
-  - **Background Script** - Runs in the background for extension logic
 
 ## Quick Start
 
 1. **Get the code**
    ```bash
-   git clone git@github.com:sirmews/browser-extension-boilerplate.git
-   cd browser-extension-boilerplate
+   git clone git@github.com:sirmews/less-annoying-stack.git
+   cd less-annoying-stack
    ```
 
 2. **Install Bun** (if you haven't already)
@@ -40,30 +40,31 @@ A simple, modern browser extension template that works with Chrome, Firefox, and
    - Turn on "Developer mode" (top right)
    - Click "Load unpacked" and select the `.output/chrome-mv3-dev` folder
 
-## Customize Your Extension
+## Usage
 
-### Change the Name and Description
-Edit `package.json`:
-```json
-{
-  "name": "your-extension-name",
-  "description": "What your extension does"
-}
+Once installed, the extension automatically removes distracting elements from Substack pages:
+
+- **Trending blocks** are hidden by default
+- **User badges** are hidden by default
+- **Up Next sections** are hidden by default
+
+### Manual Control
+
+You can toggle features on/off using the browser console (F12):
+
+```javascript
+// Hide/show trending blocks
+toggleTrendingBlock(true);   // Hide trending
+toggleTrendingBlock(false);  // Show trending
+
+// Hide/show user badges
+toggleUserBadges(true);      // Hide badges
+toggleUserBadges(false);     // Show badges
+
+// Hide/show Up Next blocks
+toggleUpNextBlock(true);     // Hide Up Next
+toggleUpNextBlock(false);    // Show Up Next
 ```
-
-### Modify What Sites It Works On
-Edit `entrypoints/content.ts` and change this line:
-```typescript
-matches: ['*://*.example.com/*'],  // Your target websites
-```
-
-### Customize the Popup
-- Edit `entrypoints/popup/main.ts` for functionality
-- Edit `entrypoints/popup/style.css` for appearance
-- Edit `entrypoints/popup/index.html` for structure
-
-### Add Background Logic
-Edit `entrypoints/background.ts` for extension background tasks.
 
 ## Available Commands
 
@@ -92,10 +93,9 @@ Creates a `.zip` file you can upload to browser extension stores.
 ## File Structure
 
 ```
-your-extension/
+less-annoying-stack/
 ├── entrypoints/           # Main extension code
-│   ├── background.ts      # Background script
-│   ├── content.ts         # Content script (runs on websites)
+│   ├── content.ts         # Content script (runs on Substack pages)
 │   └── popup/            # Popup when clicking extension icon
 ├── public/               # Icons and static files
 ├── components/           # Reusable code components
