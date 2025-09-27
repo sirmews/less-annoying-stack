@@ -3,6 +3,7 @@ export default defineContentScript({
   main() {
     let hideUserBadgesEnabled = true;
     let hideTrendingEnabled = true;
+    let hideUpNextEnabled = true;
 
     function hideTrendingBlock() {
       if (!hideTrendingEnabled) return;
@@ -37,6 +38,28 @@ export default defineContentScript({
       });
     }
 
+    function hideUpNextBlock() {
+      if (!hideUpNextEnabled) return;
+
+      // Find "Up Next" headers using stable classes and text content
+      const potentialHeaders = document.querySelectorAll('div.pencraft.pc-reset');
+      potentialHeaders.forEach(header => {
+        if (header instanceof HTMLDivElement && header.textContent?.trim() === 'Up Next') {
+          // Find the closest parent container with stable classes
+          const container = header.closest('div.pencraft.pc-display-flex.pc-flexDirection-column.pc-gap-8') as HTMLElement | null;
+          if (container) {
+            container.style.display = 'none';
+          }
+        }
+      });
+
+      // Also hide individual links as backup (using source=queue pattern)
+      const links = document.querySelectorAll<HTMLAnchorElement>('a[href*="source=queue"]');
+      links.forEach(link => {
+        link.style.display = 'none';
+      });
+    }
+
     function toggleUserBadges(enabled: boolean) {
       hideUserBadgesEnabled = enabled;
       const userBadges = document.querySelectorAll('[data-testid="user-badge"]');
@@ -68,9 +91,31 @@ export default defineContentScript({
       });
     }
 
+    function toggleUpNextBlock(enabled: boolean) {
+      hideUpNextEnabled = enabled;
+
+      // Handle Up Next headers
+      const potentialHeaders = document.querySelectorAll('div.pencraft.pc-reset');
+      potentialHeaders.forEach(header => {
+        if (header instanceof HTMLDivElement && header.textContent?.trim() === 'Up Next') {
+          const container = header.closest('div.pencraft.pc-display-flex.pc-flexDirection-column.pc-gap-8') as HTMLElement | null;
+          if (container) {
+            container.style.display = enabled ? 'none' : '';
+          }
+        }
+      });
+
+      // Handle Up Next links
+      const links = document.querySelectorAll<HTMLAnchorElement>('a[href*="source=queue"]');
+      links.forEach(link => {
+        link.style.display = enabled ? 'none' : '';
+      });
+    }
+
     function runAllHiders() {
       hideTrendingBlock();
       hideUserBadges();
+      hideUpNextBlock();
     }
 
     runAllHiders(); // Run initially
@@ -82,5 +127,6 @@ export default defineContentScript({
     // Expose toggle functions for debugging/manual control
     (window as any).toggleUserBadges = toggleUserBadges;
     (window as any).toggleTrendingBlock = toggleTrendingBlock;
+    (window as any).toggleUpNextBlock = toggleUpNextBlock;
   },
 });
