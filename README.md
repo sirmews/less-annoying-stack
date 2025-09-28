@@ -7,6 +7,10 @@ A browser extension that removes distracting elements from Substack to create a 
 - ✅ **Trending Block Removal** - Hides "Trending" sections and recommendations
 - ✅ **User Badge Hiding** - Removes subscriber badges and user indicators
 - ✅ **Up Next Block Removal** - Hides "Up Next" reading queue sections
+- ✅ **New Bestsellers Hiding** - Removes "New Bestsellers" discovery sections
+- ✅ **Search Component Relocation** - Moves search bar to optimal location above feed
+- ✅ **Smart Sidebar Management** - Automatically hides entire sidebar when all components are hidden
+- ✅ **Intelligent Layout Adjustment** - Expands main content to full width when sidebar is removed
 - ✅ **Toggleable Controls** - Each feature can be enabled/disabled independently
 - ✅ **Dynamic Content Support** - Works with asynchronously loaded content
 - ✅ **Cross-Browser** - Works on Chrome, Firefox, Edge, and more
@@ -47,6 +51,10 @@ Once installed, the extension automatically removes distracting elements from Su
 - **Trending blocks** are hidden by default
 - **User badges** are hidden by default
 - **Up Next sections** are hidden by default
+- **New Bestsellers sections** are hidden by default
+- **Original search bar** is hidden and relocated above the main feed
+- **Entire sidebar** is automatically hidden when all components are removed
+- **Main content** expands to full width for better reading experience
 
 ### Manual Control
 
@@ -64,7 +72,27 @@ toggleUserBadges(false);     // Show badges
 // Hide/show Up Next blocks
 toggleUpNextBlock(true);     // Hide Up Next
 toggleUpNextBlock(false);    // Show Up Next
+
+// Hide/show New Bestsellers blocks
+toggleNewBestsellersBlock(true);   // Hide New Bestsellers
+toggleNewBestsellersBlock(false);  // Show New Bestsellers
+
+// Hide/show original search component
+toggleOriginalSearch(true);   // Hide original search
+toggleOriginalSearch(false);  // Show original search
+
+// Control entire sidebar visibility
+toggleSidebar(true);   // Enable smart sidebar hiding (default)
+toggleSidebar(false);  // Disable sidebar hiding, always show
 ```
+
+### Smart Behavior
+
+The extension intelligently manages the sidebar:
+- When **all sidebar components** are hidden, the **entire sidebar disappears**
+- **Main content automatically expands** to use the full page width
+- If you **re-enable any component**, the sidebar reappears with proper spacing
+- **Search functionality** remains fully functional in its new location
 
 ## Available Commands
 

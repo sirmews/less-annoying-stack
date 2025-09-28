@@ -5,6 +5,8 @@ export default defineContentScript({
     let hideTrendingEnabled = true;
     let hideUpNextEnabled = true;
     let hideNewBestsellersEnabled = true;
+    let hideOriginalSearchEnabled = true;
+    let hideSidebarEnabled = true;
 
     function hideTrendingBlock() {
       if (!hideTrendingEnabled) return;
@@ -81,6 +83,15 @@ export default defineContentScript({
       links.forEach(link => {
         link.style.display = 'none';
       });
+    }
+
+    function hideOriginalSearch() {
+      if (!hideOriginalSearchEnabled) return;
+
+      const originalSearch = document.querySelector('.searchInput-ven28n');
+      if (originalSearch && originalSearch instanceof HTMLElement) {
+        originalSearch.style.display = 'none';
+      }
     }
 
     function injectSearchComponent() {
@@ -269,12 +280,142 @@ export default defineContentScript({
       });
     }
 
+    function toggleOriginalSearch(enabled: boolean) {
+      hideOriginalSearchEnabled = enabled;
+
+      const originalSearch = document.querySelector('.searchInput-ven28n');
+      if (originalSearch && originalSearch instanceof HTMLElement) {
+        originalSearch.style.display = enabled ? 'none' : '';
+      }
+    }
+
+    function checkSidebarVisibility() {
+      if (!hideSidebarEnabled) return;
+
+      const sidebar = document.querySelector('.exploreSidebar-JLrO_e');
+      if (!sidebar || !(sidebar instanceof HTMLElement)) return;
+
+      // Check if all major sidebar components are hidden
+      const componentsToCheck = [
+        // Original search component
+        { selector: '.searchInput-ven28n', enabled: hideOriginalSearchEnabled },
+        // Trending blocks
+        { textMatch: 'Trending', enabled: hideTrendingEnabled },
+        // Up Next blocks
+        { textMatch: 'Up Next', enabled: hideUpNextEnabled },
+        // New Bestsellers blocks
+        { textMatch: 'New Bestsellers', enabled: hideNewBestsellersEnabled }
+      ];
+
+      let allComponentsHidden = true;
+
+      for (const component of componentsToCheck) {
+        if (!component.enabled) {
+          // If component hiding is disabled, it's considered visible
+          allComponentsHidden = false;
+          break;
+        }
+
+        if (component.selector) {
+          // Check by selector
+          const element = sidebar.querySelector(component.selector);
+          if (element && element instanceof HTMLElement) {
+            const isVisible = element.style.display !== 'none' &&
+                            window.getComputedStyle(element).display !== 'none';
+            if (isVisible) {
+              allComponentsHidden = false;
+              break;
+            }
+          }
+        } else if (component.textMatch) {
+          // Check by text content
+          const headers = sidebar.querySelectorAll('div.pencraft.pc-reset');
+          let found = false;
+          for (const header of headers) {
+            if (header instanceof HTMLDivElement && header.textContent?.trim() === component.textMatch) {
+              const container = header.closest('div.pencraft.pc-display-flex.pc-flexDirection-column.pc-gap-8');
+              if (container && container instanceof HTMLElement) {
+                const isVisible = container.style.display !== 'none' &&
+                                window.getComputedStyle(container).display !== 'none';
+                if (isVisible) {
+                  allComponentsHidden = false;
+                  found = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (found && !allComponentsHidden) break;
+        }
+      }
+
+      // Hide or show the entire sidebar based on component visibility
+      if (allComponentsHidden) {
+        sidebar.style.display = 'none';
+        // Also adjust main content layout when sidebar is hidden
+        adjustMainContentLayout(true);
+      } else {
+        sidebar.style.display = '';
+        // Restore layout when sidebar is visible
+        adjustMainContentLayout(false);
+      }
+    }
+
+    function adjustMainContentLayout(sidebarHidden: boolean) {
+      // Target the specific element with inline margin-right style
+      // Look for the element with margin-right and the specific classes
+      const mainContentElement = document.querySelector('div[style*="margin-right"][class*="pc-justifyContent-center"][class*="flex-grow-rzmknG"]');
+
+      if (mainContentElement && mainContentElement instanceof HTMLElement) {
+        if (sidebarHidden) {
+          // Store the original margin-right value for restoration
+          const originalMarginRight = mainContentElement.style.marginRight;
+          mainContentElement.setAttribute('data-original-margin-right', originalMarginRight);
+
+          // Remove the margin-right when sidebar is hidden
+          mainContentElement.style.marginRight = '0px';
+
+          // Add a class for identification
+          mainContentElement.classList.add('sidebar-hidden');
+        } else {
+          // Restore the original margin-right value
+          const originalMarginRight = mainContentElement.getAttribute('data-original-margin-right');
+          if (originalMarginRight) {
+            mainContentElement.style.marginRight = originalMarginRight;
+          }
+
+          // Remove the identification class
+          mainContentElement.classList.remove('sidebar-hidden');
+          mainContentElement.removeAttribute('data-original-margin-right');
+        }
+      }
+    }
+
+    function toggleSidebar(enabled: boolean) {
+      hideSidebarEnabled = enabled;
+
+      const sidebar = document.querySelector('.exploreSidebar-JLrO_e');
+      if (sidebar && sidebar instanceof HTMLElement) {
+        if (enabled) {
+          // If enabling sidebar hiding, check component visibility
+          checkSidebarVisibility();
+        } else {
+          // If disabling sidebar hiding, always show the sidebar
+          sidebar.style.display = '';
+          // Also restore layout
+          adjustMainContentLayout(false);
+        }
+      }
+    }
+
     function runAllHiders() {
       hideTrendingBlock();
       hideUserBadges();
       hideUpNextBlock();
       hideNewBestsellersBlock();
+      hideOriginalSearch();
       injectSearchComponent();
+      checkSidebarVisibility();
     }
 
     runAllHiders(); // Run initially
@@ -288,5 +429,7 @@ export default defineContentScript({
     (window as any).toggleTrendingBlock = toggleTrendingBlock;
     (window as any).toggleUpNextBlock = toggleUpNextBlock;
     (window as any).toggleNewBestsellersBlock = toggleNewBestsellersBlock;
+    (window as any).toggleOriginalSearch = toggleOriginalSearch;
+    (window as any).toggleSidebar = toggleSidebar;
   },
 });
