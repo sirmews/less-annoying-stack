@@ -4,9 +4,9 @@ export default defineContentScript({
     let hideUserBadgesEnabled = true;
     let hideTrendingEnabled = true;
     let hideUpNextEnabled = true;
-    let hideNewBestsellersEnabled = true;
-    let hideOriginalSearchEnabled = true;
-    let hideSidebarEnabled = true;
+    let hideNewBestsellersEnabled = false;
+    let hideOriginalSearchEnabled = false;
+    let hideSidebarEnabled = false;
 
     function hideTrendingBlock() {
       if (!hideTrendingEnabled) return;
@@ -95,6 +95,9 @@ export default defineContentScript({
     }
 
     function injectSearchComponent() {
+      // Only inject if we're hiding the original search
+      if (!hideOriginalSearchEnabled) return;
+
       // Find the original search component
       const originalSearch = document.querySelector('.searchInput-ven28n');
       if (!originalSearch) return;

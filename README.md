@@ -51,10 +51,9 @@ Once installed, the extension automatically removes distracting elements from Su
 - **Trending blocks** are hidden by default
 - **User badges** are hidden by default
 - **Up Next sections** are hidden by default
-- **New Bestsellers sections** are hidden by default
-- **Original search bar** is hidden and relocated above the main feed
-- **Entire sidebar** is automatically hidden when all components are removed
-- **Main content** expands to full width for better reading experience
+- **New Bestsellers sections** remain visible for content discovery
+- **Search bar** remains in original location
+- **Sidebar management** and **layout optimization** features are available but disabled by default
 
 ### Manual Control
 
@@ -74,25 +73,32 @@ toggleUpNextBlock(true);     // Hide Up Next
 toggleUpNextBlock(false);    // Show Up Next
 
 // Hide/show New Bestsellers blocks
-toggleNewBestsellersBlock(true);   // Hide New Bestsellers
-toggleNewBestsellersBlock(false);  // Show New Bestsellers
+toggleNewBestsellersBlock(true);   // Hide New Bestsellers (disabled by default)
+toggleNewBestsellersBlock(false);  // Show New Bestsellers (default)
 
-// Hide/show original search component
-toggleOriginalSearch(true);   // Hide original search
-toggleOriginalSearch(false);  // Show original search
+// Hide/show original search component and enable search relocation
+toggleOriginalSearch(true);   // Hide original search and clone above feed
+toggleOriginalSearch(false);  // Show original search in sidebar (default)
 
-// Control entire sidebar visibility
-toggleSidebar(true);   // Enable smart sidebar hiding (default)
-toggleSidebar(false);  // Disable sidebar hiding, always show
+// Control entire sidebar visibility and layout optimization
+toggleSidebar(true);   // Enable smart sidebar hiding and layout adjustment
+toggleSidebar(false);  // Disable sidebar management (default)
 ```
 
-### Smart Behavior
+### Advanced Features
 
-The extension intelligently manages the sidebar:
+The extension includes advanced functionality (disabled by default):
+
+**Smart Sidebar Management:**
+- When enabled with `toggleSidebar(true)`, the extension monitors all sidebar components
 - When **all sidebar components** are hidden, the **entire sidebar disappears**
 - **Main content automatically expands** to use the full page width
 - If you **re-enable any component**, the sidebar reappears with proper spacing
-- **Search functionality** remains fully functional in its new location
+
+**Search Component Relocation:**
+- When enabled with `toggleOriginalSearch(true)`, the original search is hidden
+- A fully functional **cloned search** appears above the main feed for better accessibility
+- **All event handlers are preserved** - search functionality works identically
 
 ## Available Commands
 
